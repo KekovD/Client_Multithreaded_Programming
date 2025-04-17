@@ -17,7 +17,7 @@ public:
 
     public slots:
         void HandleSuccessfulConnection();
-    void HandleConnectionLoss();
+        void HandleConnectionLoss();
 
     signals:
         void RoomEntered();
