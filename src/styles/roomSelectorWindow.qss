@@ -1,0 +1,32 @@
+QWidget {
+    background-color: #1e332b;
+}
+
+QPushButton {
+    background-color: #218032;
+    border: none;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(140, 86, 216);
+}
+
+QListWidget, QLineEdit {
+    border: none;
+    border-radius: 4px;
+    background-color: #4e6f62;
+}
+
+QListWidget::item {
+    height: 30px;
+    background-color: #4e6f62;
+}
+
+QListWidget::item:active {
+    border: none;
+}
+
+QListWidget::item:selected {
+    border: none;
+} 

@@ -1,0 +1,28 @@
+QWidget {
+    background-color: #1e332b;
+    color:white;
+}
+
+QLineEdit {
+    border: none;
+    border-bottom: 1px solid #4e6f62;
+}
+
+QPushButton {
+    background-color: #218032;
+    border: none;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(140, 86, 216);
+}
+
+QComboBox QAbstractItemView::item {
+    selection-background-color: rgb(140, 86, 216);
+    min-height: 40px;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: rgb(140, 86, 216);
+}

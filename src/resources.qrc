@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>styles/roomSelectorWindow.qss</file>
+        <file>styles/chatWindow.qss</file>
+        <file>styles/connectionDialogWindow.qss</file>
+    </qresource>
+</RCC>
