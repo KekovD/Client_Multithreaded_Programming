@@ -19,7 +19,7 @@ public:
 
     public slots:
         void HandleConnectionEstablished();
-    void HandleNetworkDisconnect();
+        void HandleNetworkDisconnect();
 
     private slots:
         void ProcessConnectionAttempt();

@@ -17,17 +17,14 @@ public:
 
     void InitializeRoom();
 
-    int sentMessagesCount() const { return sentCount; }
-
     public slots:
         void HandleDisconnect();
 
     private slots:
-        void TransmitMessage();
-    void ProcessIncomingMessage(const QString& message) const;
+        void TransmitMessage() const;
+        void ProcessIncomingMessage(const QString& message) const;
 
 private:
-    int sentCount = 0;
     Ui::ChatWindow* ui;
     WebSocketClient& socketConnection;
 };

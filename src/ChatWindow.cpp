@@ -30,10 +30,9 @@ void ChatWindow::InitializeRoom() {
     show();
 }
 
-void ChatWindow::TransmitMessage() {
+void ChatWindow::TransmitMessage() const {
     const QString content = ui->messageInput->text().trimmed();
     if(content.isEmpty()) return;
-    sentCount++;
     ui->messageInput->clear();
     socketConnection.Transmit(content);
 }

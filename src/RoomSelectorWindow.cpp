@@ -5,8 +5,8 @@
 
 RoomSelectorWindow::RoomSelectorWindow(WebSocketClient& connection, QWidget* parent)
     : QWidget(parent),
-      socketLink(connection),
-      ui(new Ui::RoomSelectorWindow) {
+      ui(new Ui::RoomSelectorWindow),
+      socketLink(connection) {
     ui->setupUi(this);
 
     if(QFile style(":/styles/chatWindow.qss"); style.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -47,7 +47,7 @@ void RoomSelectorWindow::ProcessAvailableRooms(const QString& data) {
 }
 
 void RoomSelectorWindow::ExecuteJoinProcedure() {
-    const QString user = ui->usernameInput->text().trimmed();
+    const QString user = ui->userNameInput->text().trimmed();
     const QString room = ui->roomSelector->currentText().trimmed();
 
     if(user.isEmpty() || room.isEmpty()) {
@@ -61,8 +61,8 @@ void RoomSelectorWindow::ExecuteJoinProcedure() {
 }
 
 void RoomSelectorWindow::ExecuteCreationProcedure() {
-    const QString user = ui->usernameInput->text().trimmed();
-    const QString room = ui->roomnameInput->text().trimmed();
+    const QString user = ui->userNameInput->text().trimmed();
+    const QString room = ui->roomNameInput->text().trimmed();
 
     if(user.isEmpty() || room.isEmpty()) {
         qWarning() << "Invalid create parameters";
@@ -74,16 +74,7 @@ void RoomSelectorWindow::ExecuteCreationProcedure() {
             this, &RoomSelectorWindow::ProcessRoomDetails);
 }
 
-void RoomSelectorWindow::ProcessRoomDetails(const QString& data) {
-    const QJsonArray messages = QJsonDocument::fromJson(data.toUtf8())
-        .object()
-        .value("messages")
-        .toArray();
-
-    QStringList messageList;
-    for(const auto& msg : messages)
-        messageList << msg.toString();
-
+void RoomSelectorWindow::ProcessRoomDetails() {
     disconnect(&socketLink, &WebSocketClient::DataReceived,
                this, &RoomSelectorWindow::ProcessRoomDetails);
     hide();

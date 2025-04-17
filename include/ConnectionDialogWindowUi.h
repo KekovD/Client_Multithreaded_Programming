@@ -10,7 +10,6 @@ QT_BEGIN_NAMESPACE
 
 class Ui_ConnectionDialogWindow {
 public:
-    QGridLayout* mainLayout;
     QLineEdit* serverAddressInput;
     QLineEdit* portInput;
     QPushButton* connectButton;
@@ -25,7 +24,9 @@ public:
     }
 
 private:
-    void configureMainWindow(QWidget* window) {
+    QGridLayout* mainLayout = nullptr;
+
+    static void configureMainWindow(QWidget* window) {
         window->setObjectName("ServerConnection");
         window->resize(350, 180);
 
@@ -41,32 +42,31 @@ private:
         connectButton = new QPushButton(parent);
     }
 
-    void setupLayoutStructure() {
+    void setupLayoutStructure() const {
         mainLayout->setVerticalSpacing(10);
         mainLayout->addWidget(serverAddressInput, 0, 0);
         mainLayout->addWidget(portInput, 1, 0);
         mainLayout->addWidget(connectButton, 2, 0);
     }
 
-    void configureElementsBehavior() {
+    void configureElementsBehavior() const {
         configureInputField(serverAddressInput);
         configureInputField(portInput);
         configureActionButton(connectButton);
     }
 
-    void configureInputField(QLineEdit* field) {
+    static void configureInputField(QLineEdit* field) {
         QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        policy.setHorizontalStretch(0);
         field->setSizePolicy(policy);
     }
 
-    void configureActionButton(QPushButton* button) {
+    static void configureActionButton(QPushButton* button) {
         QSizePolicy btnPolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
         btnPolicy.setHeightForWidth(button->sizePolicy().hasHeightForWidth());
         button->setSizePolicy(btnPolicy);
     }
 
-    void translateInterface(QWidget* window) {
+    void translateInterface(QWidget* window) const {
         window->setWindowTitle(QCoreApplication::translate("ServerConnect", "Server Connection"));
         serverAddressInput->setPlaceholderText(QCoreApplication::translate("ServerConnect", "Server Address"));
         portInput->setPlaceholderText(QCoreApplication::translate("ServerConnect", "Port Number"));

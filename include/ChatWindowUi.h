@@ -11,12 +11,23 @@ QT_BEGIN_NAMESPACE
 
 class Ui_ChatWindow {
 public:
-    QGridLayout* mainLayout;
-    QHBoxLayout* inputLayout;
     QListWidget* messageList;
     QLineEdit* messageInput;
     QPushButton* sendButton;
 
+    void setupUi(QWidget* window) {
+        configureWindow(window);
+        initializeLayouts(window);
+        setupMessageArea(window);
+        setupInputComponents(window);
+        applyLayoutSettings();
+        translateUI(window);
+        QMetaObject::connectSlotsByName(window);
+    }
+
+private:
+    QGridLayout* mainLayout = nullptr;
+    QHBoxLayout* inputLayout = nullptr;
     static void configureWindow(QWidget* window) {
         window->setObjectName("ChatWindow");
         window->resize(620, 440);
@@ -55,17 +66,6 @@ public:
         mainLayout->addLayout(inputLayout, 1, 0);
     }
 
-    void setupUi(QWidget* window) {
-        configureWindow(window);
-        initializeLayouts(window);
-        setupMessageArea(window);
-        setupInputComponents(window);
-        applyLayoutSettings();
-        translateUI(window);
-        QMetaObject::connectSlotsByName(window);
-    }
-
-private:
     void applyLayoutSettings() const {
         mainLayout->setRowStretch(0, 8);
         mainLayout->setRowStretch(1, 1);

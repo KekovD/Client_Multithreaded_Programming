@@ -27,7 +27,7 @@ private:
     WebSocketClient& socketLink;
 
     void ProcessAvailableRooms(const QString& roomsData);
-    void ProcessRoomDetails(const QString& roomData);
+    void ProcessRoomDetails();
     void ExecuteJoinProcedure();
     void ExecuteCreationProcedure();
 };
