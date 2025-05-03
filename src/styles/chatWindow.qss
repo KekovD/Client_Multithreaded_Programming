@@ -26,3 +26,14 @@ QComboBox QAbstractItemView::item {
 QComboBox QAbstractItemView::item:hover {
     background-color: rgb(140, 86, 216);
 }
+
+
+QListWidget::item {
+    padding: 5px;
+    border-radius: 5px;
+    margin: 2px;
+}
+
+QListWidget::item:selected {
+    background-color: transparent;
+}

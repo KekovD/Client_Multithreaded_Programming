@@ -78,7 +78,8 @@ void RoomSelectorWindow::ProcessRoomDetails() {
     disconnect(&socketLink, &WebSocketClient::DataReceived,
                this, &RoomSelectorWindow::ProcessRoomDetails);
     hide();
-    emit RoomEntered();
+    const QString username = ui->userNameInput->text().trimmed();
+    emit RoomEntered(username);
 }
 
 void RoomSelectorWindow::HandleConnectionLoss() {

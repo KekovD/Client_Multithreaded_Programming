@@ -20,7 +20,7 @@ public:
         void HandleConnectionLoss();
 
     signals:
-        void RoomEntered();
+        void RoomEntered(const QString& username);
 
 private:
     Ui::RoomSelectorWindow* ui;

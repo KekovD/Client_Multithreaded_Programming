@@ -15,7 +15,7 @@ public:
     explicit ChatWindow(WebSocketClient& connection, QWidget* parent = nullptr);
     ~ChatWindow() override;
 
-    void InitializeRoom();
+    void InitializeRoom(const QString& username);
 
     public slots:
         void HandleDisconnect();
@@ -25,6 +25,10 @@ public:
         void ProcessIncomingMessage(const QString& message) const;
 
 private:
+    QString GenerateRoomKey() const;
+
+    QString currentUsername;
+    QString clientKey = GenerateRoomKey();
     Ui::ChatWindow* ui;
     WebSocketClient& socketConnection;
 };
