@@ -50,7 +50,7 @@ void ChatWindow::ProcessIncomingMessage(const QString& message) const {
     if (CommandHandler cmd; CommandHandler::TryParse(message, cmd) && cmd.operation() == "join") {
         auto* item = new QListWidgetItem(CommandHandler::FormatJoinMessage(cmd.userName()));
         item->setTextAlignment(Qt::AlignCenter);
-        ui->messageList->addItem(item);
+        AddMessageItem(item);
         return;
     }
 
@@ -71,14 +71,14 @@ void ChatWindow::ProcessIncomingMessage(const QString& message) const {
                 item->setTextAlignment(Qt::AlignLeft);
             }
 
-            ui->messageList->addItem(item);
+            AddMessageItem(item);
             return;
         }
     }
 
     auto* item = new QListWidgetItem(message);
     item->setTextAlignment(Qt::AlignLeft);
-    ui->messageList->addItem(item);
+    AddMessageItem(item);
 }
 
 void ChatWindow::HandleDisconnect() {
@@ -102,4 +102,15 @@ QString ChatWindow::GenerateRoomKey() const {
     );
 
     return QString(hash.toHex());
+}
+
+void ChatWindow::AddMessageItem(QListWidgetItem* item) const {
+    const bool wasAtBottom = ui->messageList->verticalScrollBar()->value() ==
+                      ui->messageList->verticalScrollBar()->maximum();
+
+    ui->messageList->addItem(item);
+
+    if (wasAtBottom) {
+        ui->messageList->scrollToBottom();
+    }
 }

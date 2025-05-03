@@ -2,6 +2,8 @@
 #define CHATWINDOW_H
 
 #include <QWidget>
+#include <QScrollBar>
+#include <QtWidgets/qlistwidget.h>
 #include "WebSocketClient.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,6 +27,7 @@ public:
         void ProcessIncomingMessage(const QString& message) const;
 
 private:
+    void AddMessageItem(QListWidgetItem* item) const;
     QString GenerateRoomKey() const;
 
     QString currentUsername;
