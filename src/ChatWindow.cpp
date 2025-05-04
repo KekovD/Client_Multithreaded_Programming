@@ -127,20 +127,33 @@ void MessageDelegate::paint(QPainter* painter, const QStyleOptionViewItem& optio
     painter->save();
 
     QTextDocument doc;
+    doc.setDocumentMargin(5);
     doc.setPlainText(opt.text);
-    doc.setTextWidth(opt.rect.width());
+
+    const qreal viewportWidth = listWidget->viewport()->width();
+    const qreal maxWidth = (viewportWidth / 2) - 15;
 
     QTextOption textOption;
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     textOption.setAlignment(opt.displayAlignment);
-    doc.setDocumentMargin(5);
+
+    if(opt.displayAlignment & Qt::AlignCenter) {
+        doc.setTextWidth(viewportWidth - 10);
+    } else {
+        doc.setTextWidth(maxWidth);
+    }
+
     doc.setDefaultTextOption(textOption);
 
     opt.text = "";
     opt.widget->style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
     painter->translate(opt.rect.left(), opt.rect.top());
-    const QRect clip(0, 0, opt.rect.width(), opt.rect.height());
+    if(opt.displayAlignment & Qt::AlignRight) {
+        painter->translate(viewportWidth - maxWidth - 10, 0);
+    }
+
+    const QRect clip(0, 0, doc.textWidth(), opt.rect.height());
     doc.drawContents(painter, clip);
 
     painter->restore();
@@ -152,13 +165,22 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem& option,
     initStyleOption(&opt, index);
 
     QTextDocument doc;
+    doc.setDocumentMargin(5);
     doc.setPlainText(opt.text);
-    doc.setTextWidth(listWidget->viewport()->width() - 10);
+
+    const qreal viewportWidth = listWidget->viewport()->width();
+    const qreal maxWidth = (viewportWidth / 2) - 15;
 
     QTextOption textOption;
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     textOption.setAlignment(opt.displayAlignment);
-    doc.setDocumentMargin(5);
+
+    if(opt.displayAlignment & Qt::AlignCenter) {
+        doc.setTextWidth(viewportWidth - 10);
+    } else {
+        doc.setTextWidth(maxWidth);
+    }
+
     doc.setDefaultTextOption(textOption);
 
     return QSize(doc.idealWidth(), doc.size().height());

@@ -41,7 +41,7 @@ private:
     WebSocketClient& socketConnection;
 };
 
-class MessageDelegate : public QStyledItemDelegate {
+class MessageDelegate final : public QStyledItemDelegate {
     QListWidget* listWidget;
 
 public:

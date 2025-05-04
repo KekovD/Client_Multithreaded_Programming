@@ -37,3 +37,16 @@ QListWidget::item {
 QListWidget::item:selected {
     background-color: transparent;
 }
+
+QListWidget::item[alignment="2"] {
+    background: #dcf8c6;
+    margin-left: 50%;
+}
+
+QListWidget::item[alignment="1"] {
+    margin-right: 50%;
+}
+
+QListWidget::item[alignment="4"] {
+    background: #e8f4f8;
+}
