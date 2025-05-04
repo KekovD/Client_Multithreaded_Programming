@@ -7,30 +7,48 @@
 int main(int argc, char* argv[]) {
     QApplication app{argc, argv};
 
-    WebSocketClient connection;
+    const auto socketThread = new QThread;
+    WebSocketClient* connection = new WebSocketClient();
+    connection->moveToThread(socketThread);
+    QObject::connect(socketThread, &QThread::started, connection, &WebSocketClient::Initialize);
+    socketThread->start();
+
     ConnectionDialogWindow serverWindow;
     const RoomSelectorWindow roomSelector(connection);
     const ChatWindow chatWindow(connection);
 
     serverWindow.show();
 
-    QObject::connect(&connection, &WebSocketClient::ConnectionEstablished,
-                     &serverWindow, &ConnectionDialogWindow::HandleConnectionEstablished);
-    QObject::connect(&connection, &WebSocketClient::ConnectionEstablished,
+    QObject::connect(&serverWindow, &ConnectionDialogWindow::ConnectionRequested,
+    [connection](const QString& host, const QString& port) {
+        QMetaObject::invokeMethod(connection, "EstablishConnection",
+            Qt::QueuedConnection,
+            Q_ARG(QString, host),
+            Q_ARG(QString, port));
+        }
+    );
+
+    QObject::connect(connection, &WebSocketClient::ConnectionEstablished,
+                &serverWindow, &ConnectionDialogWindow::HandleConnectionEstablished);
+    QObject::connect(connection, &WebSocketClient::ConnectionEstablished,
                      &roomSelector, &RoomSelectorWindow::HandleSuccessfulConnection);
 
-    QObject::connect(&connection, &WebSocketClient::ConnectionLost,
+    QObject::connect(connection, &WebSocketClient::ConnectionLost,
                      &serverWindow, &ConnectionDialogWindow::HandleNetworkDisconnect);
-    QObject::connect(&connection, &WebSocketClient::ConnectionLost,
+    QObject::connect(connection, &WebSocketClient::ConnectionLost,
                      &roomSelector, &RoomSelectorWindow::HandleConnectionLoss);
-    QObject::connect(&connection, &WebSocketClient::ConnectionLost,
+    QObject::connect(connection, &WebSocketClient::ConnectionLost,
                      &chatWindow, &ChatWindow::HandleDisconnect);
-
-    QObject::connect(&serverWindow, &ConnectionDialogWindow::ConnectionRequested,
-                     &connection, &WebSocketClient::EstablishConnection);
 
     QObject::connect(&roomSelector, &RoomSelectorWindow::RoomEntered,
                      &chatWindow, &ChatWindow::InitializeRoom);
+
+    QObject::connect(&app, &QApplication::aboutToQuit, [=]() {
+    socketThread->quit();
+    socketThread->wait();
+    delete connection;
+    delete socketThread;
+    });
 
     return QApplication::exec();
 }

@@ -3,10 +3,10 @@
 #include "../include/CommandHandler.h"
 #include <QListView>
 
-RoomSelectorWindow::RoomSelectorWindow(WebSocketClient& connection, QWidget* parent)
+RoomSelectorWindow::RoomSelectorWindow(WebSocketClient* connection, QWidget* parent)
     : QWidget(parent),
-      ui(new Ui::RoomSelectorWindow),
-      socketLink(connection) {
+      socketLink(connection),
+      ui(new Ui::RoomSelectorWindow) {
     ui->setupUi(this);
 
     if(QFile style(":/styles/chatWindow.qss"); style.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -27,8 +27,9 @@ RoomSelectorWindow::~RoomSelectorWindow() {
 }
 
 void RoomSelectorWindow::HandleSuccessfulConnection() {
-    connect(&socketLink, &WebSocketClient::DataReceived,
-            this, &RoomSelectorWindow::ProcessAvailableRooms);
+    connect(socketLink, &WebSocketClient::DataReceived,
+            this, &RoomSelectorWindow::ProcessAvailableRooms,
+            Qt::QueuedConnection);
     show();
 }
 
@@ -42,7 +43,7 @@ void RoomSelectorWindow::ProcessAvailableRooms(const QString& data) {
     for(const auto& room : rooms)
         ui->roomSelector->addItem(room.toString());
 
-    disconnect(&socketLink, &WebSocketClient::DataReceived,
+    disconnect(socketLink, &WebSocketClient::DataReceived,
                this, &RoomSelectorWindow::ProcessAvailableRooms);
 }
 
@@ -55,8 +56,8 @@ void RoomSelectorWindow::ExecuteJoinProcedure() {
         return;
     }
 
-    socketLink.Transmit(CommandHandler("join", user, room).ToJson());
-    connect(&socketLink, &WebSocketClient::DataReceived,
+    socketLink->ScheduleTransmit(CommandHandler("join", user, room).ToJson());
+    connect(socketLink, &WebSocketClient::DataReceived,
             this, &RoomSelectorWindow::ProcessRoomDetails);
 }
 
@@ -69,13 +70,13 @@ void RoomSelectorWindow::ExecuteCreationProcedure() {
         return;
     }
 
-    socketLink.Transmit(CommandHandler("create", user, room).ToJson());
-    connect(&socketLink, &WebSocketClient::DataReceived,
+    socketLink->ScheduleTransmit(CommandHandler("create", user, room).ToJson());
+    connect(socketLink, &WebSocketClient::DataReceived,
             this, &RoomSelectorWindow::ProcessRoomDetails);
 }
 
 void RoomSelectorWindow::ProcessRoomDetails() {
-    disconnect(&socketLink, &WebSocketClient::DataReceived,
+    disconnect(socketLink, &WebSocketClient::DataReceived,
                this, &RoomSelectorWindow::ProcessRoomDetails);
     hide();
     const QString username = ui->userNameInput->text().trimmed();

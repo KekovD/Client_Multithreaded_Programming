@@ -12,7 +12,7 @@ class RoomSelectorWindow final : public QWidget {
     Q_OBJECT
 
 public:
-    explicit RoomSelectorWindow(WebSocketClient& connection, QWidget* parent = nullptr);
+    explicit RoomSelectorWindow(WebSocketClient* connection, QWidget* parent = nullptr);
     ~RoomSelectorWindow() override;
 
     public slots:
@@ -23,8 +23,8 @@ public:
         void RoomEntered(const QString& username);
 
 private:
+    WebSocketClient* socketLink;
     Ui::RoomSelectorWindow* ui;
-    WebSocketClient& socketLink;
 
     void ProcessAvailableRooms(const QString& roomsData);
     void ProcessRoomDetails();

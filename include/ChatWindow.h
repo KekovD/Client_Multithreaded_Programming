@@ -19,7 +19,7 @@ class ChatWindow final : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ChatWindow(WebSocketClient& connection, QWidget* parent = nullptr);
+    explicit ChatWindow(WebSocketClient* connection, QWidget* parent = nullptr);
     ~ChatWindow() override;
 
     void InitializeRoom(const QString& username);
@@ -38,7 +38,7 @@ private:
     QString currentUsername;
     QString clientKey = GenerateRoomKey();
     Ui::ChatWindow* ui;
-    WebSocketClient& socketConnection;
+    WebSocketClient* socketConnection;
 };
 
 class MessageDelegate final : public QStyledItemDelegate {

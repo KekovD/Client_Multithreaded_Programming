@@ -8,26 +8,31 @@ class WebSocketClient final : public QObject {
     Q_OBJECT
 
 public:
-    bool isConnected() const { return connectionActive; }
-    int keepAliveInterval() const { return keepaliveTimer.interval(); }
-
     explicit WebSocketClient(QObject* parent = nullptr);
-    void EstablishConnection(const QString& host, const QString& port);
-    void Transmit(const QString& content);
-    void MaintainConnection();
-    void ConfirmActive();
-    void HandleConnect();
-    void HandleDisconnect();
+    bool isConnected() const { return connectionActive; }
+    void ScheduleTransmit(const QString& content);
 
     signals:
+        void internalTransmit(const QString& content);
         void DataReceived(const QString& content);
         void ConnectionEstablished();
         void ConnectionLost();
         void errorOccurred(const QString& error);
+        void establishConnectionRequested(const QString& host, const QString& port);
+
+    public slots:
+        void Initialize();
+        void EstablishConnection(const QString& host, const QString& port);
+        void Transmit(const QString& content) const;
+        void MaintainConnection();
+        void ConfirmActive();
+        void HandleConnect();
+
+    void HandleDisconnect();
 
 private:
-    QWebSocket webSocket;
-    QTimer keepaliveTimer;
+    QWebSocket* webSocket = nullptr;
+    QTimer* keepaliveTimer = nullptr;
     bool connectionActive{false};
 };
 

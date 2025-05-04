@@ -2,7 +2,7 @@
 #include "../include/ChatWindowUi.h"
 #include "../include/CommandHandler.h"
 
-ChatWindow::ChatWindow(WebSocketClient& connection, QWidget* parent)
+ChatWindow::ChatWindow(WebSocketClient* connection, QWidget* parent)
     : QWidget(parent),
       ui(new Ui::ChatWindow),
       socketConnection(connection) {
@@ -30,8 +30,14 @@ ChatWindow::~ChatWindow() {
 void ChatWindow::InitializeRoom(const QString& username) {
     currentUsername = username;
     ui->messageList->clear();
-    connect(&socketConnection, &WebSocketClient::DataReceived,
-            this, &ChatWindow::ProcessIncomingMessage);
+
+    disconnect(socketConnection, &WebSocketClient::DataReceived,
+              this, &ChatWindow::ProcessIncomingMessage);
+
+    connect(socketConnection, &WebSocketClient::DataReceived,
+            this, &ChatWindow::ProcessIncomingMessage,
+            Qt::UniqueConnection);
+
     show();
 }
 
@@ -47,7 +53,7 @@ void ChatWindow::TransmitMessage() const {
     const QString jsonMessage = doc.toJson(QJsonDocument::Compact);
 
     ui->messageInput->clear();
-    socketConnection.Transmit(jsonMessage);
+    socketConnection->ScheduleTransmit(jsonMessage);
 }
 
 void ChatWindow::ProcessIncomingMessage(const QString& message) const {
@@ -86,7 +92,7 @@ void ChatWindow::ProcessIncomingMessage(const QString& message) const {
 }
 
 void ChatWindow::HandleDisconnect() {
-    disconnect(&socketConnection, &WebSocketClient::DataReceived,
+    disconnect(socketConnection, &WebSocketClient::DataReceived,
                         this, &ChatWindow::ProcessIncomingMessage);
     hide();
 }

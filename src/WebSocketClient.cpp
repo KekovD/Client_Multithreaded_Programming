@@ -1,18 +1,29 @@
 #include "../include/WebSocketClient.h"
 
 WebSocketClient::WebSocketClient(QObject* parent)
-    : QObject(parent) {
-    connect(&webSocket, &QWebSocket::textMessageReceived,
+    : QObject(parent) {}
+
+void WebSocketClient::Initialize() {
+    webSocket = new QWebSocket;
+    keepaliveTimer = new QTimer(this);
+
+    connect(webSocket, &QWebSocket::textMessageReceived,
             this, &WebSocketClient::DataReceived);
-    connect(&webSocket, &QWebSocket::connected,
+    connect(webSocket, &QWebSocket::connected,
             this, &WebSocketClient::HandleConnect);
-    connect(&webSocket, &QWebSocket::disconnected,
+    connect(webSocket, &QWebSocket::disconnected,
             this, &WebSocketClient::HandleDisconnect);
-    connect(&webSocket, &QWebSocket::pong,
+    connect(webSocket, &QWebSocket::pong,
             this, &WebSocketClient::ConfirmActive);
-    connect(&keepaliveTimer, &QTimer::timeout,
+    connect(keepaliveTimer, &QTimer::timeout,
             this, &WebSocketClient::MaintainConnection);
+
+    connect(this, &WebSocketClient::establishConnectionRequested,
+            this, &WebSocketClient::EstablishConnection, Qt::QueuedConnection);
+    connect(this, &WebSocketClient::internalTransmit,
+           this, &WebSocketClient::Transmit, Qt::QueuedConnection);
 }
+
 
 void WebSocketClient::EstablishConnection(const QString& host, const QString& port) {
     QUrl endpoint;
@@ -20,24 +31,33 @@ void WebSocketClient::EstablishConnection(const QString& host, const QString& po
     endpoint.setHost(host);
     bool ok;
     const int portNum = port.toInt(&ok);
-
-    if(!ok || portNum <= 0) {
+    if (!ok || portNum <= 0) {
         emit errorOccurred("Invalid port number");
         return;
     }
     endpoint.setPort(portNum);
-
-    webSocket.open(endpoint);
+    webSocket->open(endpoint);
 }
 
-void WebSocketClient::Transmit(const QString& content) {
-    webSocket.sendTextMessage(content);
+void WebSocketClient::Transmit(const QString& content) const {
+    if(webSocket && webSocket->state() == QAbstractSocket::ConnectedState) {
+        QMetaObject::invokeMethod(webSocket,
+            [this, content]() {
+                webSocket->sendTextMessage(content);
+            },
+            Qt::QueuedConnection
+        );
+    }
+}
+
+void WebSocketClient::ScheduleTransmit(const QString& content) {
+    emit internalTransmit(content);
 }
 
 void WebSocketClient::MaintainConnection() {
-    if(!connectionActive) webSocket.close();
+    if(!connectionActive) webSocket->close();
     connectionActive = false;
-    webSocket.ping();
+    webSocket->ping();
 }
 
 void WebSocketClient::ConfirmActive() {
@@ -46,11 +66,11 @@ void WebSocketClient::ConfirmActive() {
 
 void WebSocketClient::HandleConnect() {
     connectionActive = true;
-    keepaliveTimer.start(5000);
+    QMetaObject::invokeMethod(keepaliveTimer, "start", Qt::QueuedConnection, Q_ARG(int, 5000));
     emit ConnectionEstablished();
 }
 
 void WebSocketClient::HandleDisconnect() {
-    keepaliveTimer.stop();
+    keepaliveTimer->stop();
     emit ConnectionLost();
 }
