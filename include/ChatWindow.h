@@ -4,6 +4,11 @@
 #include <QWidget>
 #include <QScrollBar>
 #include <QtWidgets/qlistwidget.h>
+#include <QStyledItemDelegate>
+#include <QTextDocument>
+#include <QPainter>
+#include <QTextOption>
+#include <QTextDocument>
 #include "WebSocketClient.h"
 
 QT_BEGIN_NAMESPACE
@@ -35,5 +40,20 @@ private:
     Ui::ChatWindow* ui;
     WebSocketClient& socketConnection;
 };
+
+class MessageDelegate : public QStyledItemDelegate {
+    QListWidget* listWidget;
+
+public:
+    explicit MessageDelegate(QListWidget* list, QObject* parent = nullptr)
+        : QStyledItemDelegate(parent), listWidget(list) {}
+
+    void paint(QPainter* painter, const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
+
+    QSize sizeHint(const QStyleOptionViewItem& option,
+                   const QModelIndex& index) const override;
+};
+
 
 #endif // CHATWINDOW_H

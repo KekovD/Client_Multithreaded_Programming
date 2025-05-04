@@ -36,7 +36,7 @@ public:
     }
 
     static QString FormatJoinMessage(const QString& user) {
-        return QStringLiteral("[%1] %2 join to room")
+        return QStringLiteral("[%1] \"%2\" join to room")
             .arg(QDateTime::currentDateTime().toString("hh:mm:ss"), user);
     }
 

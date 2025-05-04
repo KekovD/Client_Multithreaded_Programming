@@ -8,10 +8,14 @@ ChatWindow::ChatWindow(WebSocketClient& connection, QWidget* parent)
       socketConnection(connection) {
     ui->setupUi(this);
 
+    setMinimumWidth(520);
+
     if(QFile style(":/styles/roomSelectorWindow.qss"); style.open(QIODevice::ReadOnly | QIODevice::Text)) {
         this->setStyleSheet(style.readAll());
         style.close();
     }
+
+    ui->messageList->setItemDelegate(new MessageDelegate(ui->messageList, this));
 
     connect(ui->sendButton, &QPushButton::clicked,
                      this, &ChatWindow::TransmitMessage);
@@ -113,4 +117,49 @@ void ChatWindow::AddMessageItem(QListWidgetItem* item) const {
     if (wasAtBottom) {
         ui->messageList->scrollToBottom();
     }
+}
+
+void MessageDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+                            const QModelIndex& index) const {
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    painter->save();
+
+    QTextDocument doc;
+    doc.setPlainText(opt.text);
+    doc.setTextWidth(opt.rect.width());
+
+    QTextOption textOption;
+    textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    textOption.setAlignment(opt.displayAlignment);
+    doc.setDocumentMargin(5);
+    doc.setDefaultTextOption(textOption);
+
+    opt.text = "";
+    opt.widget->style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
+
+    painter->translate(opt.rect.left(), opt.rect.top());
+    const QRect clip(0, 0, opt.rect.width(), opt.rect.height());
+    doc.drawContents(painter, clip);
+
+    painter->restore();
+}
+
+QSize MessageDelegate::sizeHint(const QStyleOptionViewItem& option,
+                                const QModelIndex& index) const {
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    QTextDocument doc;
+    doc.setPlainText(opt.text);
+    doc.setTextWidth(listWidget->viewport()->width() - 10);
+
+    QTextOption textOption;
+    textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    textOption.setAlignment(opt.displayAlignment);
+    doc.setDocumentMargin(5);
+    doc.setDefaultTextOption(textOption);
+
+    return QSize(doc.idealWidth(), doc.size().height());
 }

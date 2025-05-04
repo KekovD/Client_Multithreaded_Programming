@@ -49,6 +49,7 @@ private:
         messageList = new QListWidget(parent);
         messageList->setObjectName("MessageList");
         messageList->setMinimumHeight(300);
+        messageList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         mainLayout->addWidget(messageList, 0, 0);
     }
 
