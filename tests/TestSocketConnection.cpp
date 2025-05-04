@@ -67,8 +67,6 @@ void TestWebSocketClient::testKeepAliveTimerInterval()
 
     client->EstablishConnection("localhost", QString::number(testPort));
     QVERIFY(!connectSpy.wait(waitTimeout));
-
-    //QCOMPARE_LE(client->keepAliveInterval(), 5000);
 }
 
 void TestWebSocketClient::testConnectionStateFlags()

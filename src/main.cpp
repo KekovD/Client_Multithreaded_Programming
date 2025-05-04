@@ -1,16 +1,17 @@
 #include <QApplication>
+#include <memory>
 #include "../include/ConnectionDialogWindow.h"
 #include "../include/RoomSelectorWindow.h"
 #include "../include/ChatWindow.h"
 #include "../include/WebSocketClient.h"
 
 int main(int argc, char* argv[]) {
-    QApplication app{argc, argv};
+    const QApplication app{argc, argv};
 
-    const auto socketThread = new QThread;
-    WebSocketClient* connection = new WebSocketClient();
-    connection->moveToThread(socketThread);
-    QObject::connect(socketThread, &QThread::started, connection, &WebSocketClient::Initialize);
+    const auto socketThread = std::make_unique<QThread>();
+    auto connection = new WebSocketClient();
+    connection->moveToThread(socketThread.get());
+    QObject::connect(socketThread.get(), &QThread::started, connection, &WebSocketClient::Initialize);
     socketThread->start();
 
     ConnectionDialogWindow serverWindow;
@@ -43,11 +44,9 @@ int main(int argc, char* argv[]) {
     QObject::connect(&roomSelector, &RoomSelectorWindow::RoomEntered,
                      &chatWindow, &ChatWindow::InitializeRoom);
 
-    QObject::connect(&app, &QApplication::aboutToQuit, [=]() {
-    socketThread->quit();
-    socketThread->wait();
-    delete connection;
-    delete socketThread;
+    QObject::connect(&app, &QApplication::aboutToQuit, [&] {
+        socketThread->quit();
+        socketThread->wait();
     });
 
     return QApplication::exec();
