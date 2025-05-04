@@ -14,8 +14,6 @@ RoomSelectorWindow::RoomSelectorWindow(WebSocketClient* connection, QWidget* par
         style.close();
     }
 
-    ui->roomSelector->setView(new QListView);
-
     connect(ui->joinButton, &QPushButton::clicked,
             this, &RoomSelectorWindow::ExecuteJoinProcedure);
     connect(ui->createButton, &QPushButton::clicked,
@@ -27,35 +25,20 @@ RoomSelectorWindow::~RoomSelectorWindow() {
 }
 
 void RoomSelectorWindow::HandleSuccessfulConnection() {
-    connect(socketLink, &WebSocketClient::DataReceived,
-            this, &RoomSelectorWindow::ProcessAvailableRooms,
-            Qt::QueuedConnection);
     show();
 }
 
-void RoomSelectorWindow::ProcessAvailableRooms(const QString& data) {
-    const QJsonArray rooms = QJsonDocument::fromJson(data.toUtf8())
-        .object()
-        .value("rooms")
-        .toArray();
-
-    ui->roomSelector->clear();
-    for(const auto& room : rooms)
-        ui->roomSelector->addItem(room.toString());
-
-    disconnect(socketLink, &WebSocketClient::DataReceived,
-               this, &RoomSelectorWindow::ProcessAvailableRooms);
-}
 
 void RoomSelectorWindow::ExecuteJoinProcedure() {
     const QString user = ui->userNameInput->text().trimmed();
-    const QString room = ui->roomSelector->currentText().trimmed();
+    const QString room = ui->roomNameInput->text().trimmed();
 
     if(user.isEmpty() || room.isEmpty()) {
-        qWarning() << "Invalid join parameters";
+        qWarning() << "Invalid join parameters. User:" << user << "Room:" << room;
         return;
     }
 
+    qDebug() << "Joining room:" << room << "as user:" << user;
     socketLink->ScheduleTransmit(CommandHandler("join", user, room).ToJson());
     connect(socketLink, &WebSocketClient::DataReceived,
             this, &RoomSelectorWindow::ProcessRoomDetails);

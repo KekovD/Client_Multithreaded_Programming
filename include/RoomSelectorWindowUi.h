@@ -13,7 +13,6 @@ class Ui_RoomSelectorWindow {
 public:
     QLineEdit* userNameInput;
     QLineEdit* roomNameInput;
-    QComboBox* roomSelector;
     QPushButton* joinButton;
     QPushButton* createButton;
 
@@ -41,7 +40,6 @@ private:
         mainLayout = new QGridLayout(parent);
         userNameInput = new QLineEdit(parent);
         roomNameInput = new QLineEdit(parent);
-        roomSelector = new QComboBox(parent);
         joinButton = new QPushButton(parent);
         createButton = new QPushButton(parent);
     }
@@ -50,15 +48,13 @@ private:
         mainLayout->setVerticalSpacing(10);
         mainLayout->addWidget(userNameInput, 0, 0);
         mainLayout->addWidget(roomNameInput, 1, 0);
-        mainLayout->addWidget(roomSelector, 2, 0);
-        mainLayout->addWidget(joinButton, 3, 0);
-        mainLayout->addWidget(createButton, 4, 0);
+        mainLayout->addWidget(joinButton, 2, 0);
+        mainLayout->addWidget(createButton, 3, 0);
     }
 
     void configureElementsBehavior() {
         setupSizePolicy(userNameInput);
         setupSizePolicy(roomNameInput);
-        setupComboBoxBehavior();
         setupButtonBehavior(joinButton);
         setupButtonBehavior(createButton);
     }
@@ -66,13 +62,6 @@ private:
     static void setupSizePolicy(QWidget* element) {
         QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         element->setSizePolicy(policy);
-    }
-
-    void setupComboBoxBehavior() const {
-        roomSelector->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
-        QSizePolicy comboPolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-        comboPolicy.setHeightForWidth(roomSelector->sizePolicy().hasHeightForWidth());
-        roomSelector->setSizePolicy(comboPolicy);
     }
 
     static void setupButtonBehavior(QPushButton* button) {
@@ -85,7 +74,6 @@ private:
         window->setWindowTitle(QCoreApplication::translate("RoomSelect", "Room Selection"));
         userNameInput->setPlaceholderText(QCoreApplication::translate("RoomSelect", "Username"));
         roomNameInput->setPlaceholderText(QCoreApplication::translate("RoomSelect", "New Room Name"));
-        roomSelector->setPlaceholderText(QCoreApplication::translate("RoomSelect", "Available Rooms"));
         joinButton->setText(QCoreApplication::translate("RoomSelect", "Join Room"));
         createButton->setText(QCoreApplication::translate("RoomSelect", "Create Room"));
     }

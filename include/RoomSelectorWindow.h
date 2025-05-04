@@ -26,7 +26,6 @@ private:
     WebSocketClient* socketLink;
     Ui::RoomSelectorWindow* ui;
 
-    void ProcessAvailableRooms(const QString& roomsData);
     void ProcessRoomDetails();
     void ExecuteJoinProcedure();
     void ExecuteCreationProcedure();
