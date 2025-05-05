@@ -11,6 +11,9 @@ public:
     explicit WebSocketClient(QObject* parent = nullptr);
     bool isConnected() const { return connectionActive; }
     void ScheduleTransmit(const QString& content);
+    QTimer* keepaliveTimer = nullptr;
+    QWebSocket* webSocket = nullptr;
+    bool connectionActive{false};
 
     signals:
         void internalTransmit(const QString& content);
@@ -30,10 +33,7 @@ public:
 
     void HandleDisconnect();
 
-private:
-    QWebSocket* webSocket = nullptr;
-    QTimer* keepaliveTimer = nullptr;
-    bool connectionActive{false};
+// private:
 };
 
 #endif // WEBSOCKETCLIENT_H

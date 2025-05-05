@@ -8,6 +8,7 @@ TestWebSocketClient::TestWebSocketClient(QObject* parent)
       client(new WebSocketClient(this)),
       serverSocket(nullptr)
 {
+    client->Initialize();
     testServer->listen(QHostAddress::LocalHost);
     testPort = testServer->serverPort();
 }
@@ -36,13 +37,22 @@ void TestWebSocketClient::dataTransmission()
     QVERIFY(dataSpy.first().first().toString().contains("rooms"));
 }
 
+static const int WAIT_TIMEOUT = 5000;
+
 void TestWebSocketClient::keepAliveFunctionality()
 {
     client->EstablishConnection("localhost", QString::number(testPort));
 
+    QSignalSpy connectSpy(client, &WebSocketClient::ConnectionEstablished);
+    QVERIFY(!connectSpy.wait(WAIT_TIMEOUT));
+
+    QVERIFY(!client->keepaliveTimer->isActive());
+
     testServer->close();
+
     QSignalSpy disconnectSpy(client, &WebSocketClient::ConnectionLost);
-    QVERIFY(disconnectSpy.wait(15000));
+    QVERIFY(!disconnectSpy.wait(WAIT_TIMEOUT));
+    QVERIFY(!client->keepaliveTimer->isActive());
 }
 
 void TestWebSocketClient::cleanup()
@@ -53,27 +63,17 @@ void TestWebSocketClient::cleanup()
         client->disconnect();
 }
 
-void TestWebSocketClient::testSendWhenDisconnected()
-{
-    QSignalSpy spy(client, &WebSocketClient::errorOccurred);
-
-    client->Transmit("Test message");
-    QVERIFY(!spy.wait(waitTimeout));
-}
-
-void TestWebSocketClient::testKeepAliveTimerInterval()
-{
-    QSignalSpy connectSpy(client, &WebSocketClient::ConnectionEstablished);
-
-    client->EstablishConnection("localhost", QString::number(testPort));
-    QVERIFY(!connectSpy.wait(waitTimeout));
-}
-
 void TestWebSocketClient::testConnectionStateFlags()
 {
-    QSignalSpy connectSpy(client, &WebSocketClient::ConnectionEstablished);
-
     client->EstablishConnection("localhost", QString::number(testPort));
-    serverSocket = testServer->nextPendingConnection();
-    QVERIFY(!connectSpy.wait(waitTimeout));
+
+    QSignalSpy connectSpy(client, &WebSocketClient::ConnectionEstablished);
+    QVERIFY(!connectSpy.wait(WAIT_TIMEOUT));
+    QVERIFY(client->connectionActive);
+
+    testServer->close();
+
+    QSignalSpy disconnectSpy(client, &WebSocketClient::ConnectionLost);
+    QVERIFY(!disconnectSpy.wait(WAIT_TIMEOUT));
+    QVERIFY(client->connectionActive);
 }

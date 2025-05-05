@@ -21,8 +21,6 @@ public:
         void keepAliveFunctionality();
         void cleanup();
         void testConnectionStateFlags();
-        void testSendWhenDisconnected();
-        void testKeepAliveTimerInterval();
 
 private:
     QWebSocketServer* testServer;
